@@ -1,0 +1,765 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Memória da Vida Terrestre — Museu Scientiah</title>
+<style>
+:root{
+  --bg:#0e2a20; --bg2:#174733; --ink:#ffffff; --acc:#ffd23f; --acc-ink:#1a1400;
+  --card-ink:#0b1a13; --ok:#1b8f4e; --glow:#7dffb2; --en-dark:#8fd0ff; --en-light:#0b5d9e;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);
+  font:600 24px/1.25 system-ui,"Segoe UI",Roboto,Arial,sans-serif}
+body{-webkit-user-select:none;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none}
+[hidden]{display:none!important}
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column}
+.screen{flex:1;min-height:0;display:flex;flex-direction:column;padding:2vmin;gap:2vmin;overflow-y:auto}
+h1,h2,p{margin:0}
+[tabindex="-1"]:focus{outline:none}
+.en{font-style:italic;font-weight:700;color:var(--en-dark)}
+.painel .en{color:var(--en-light)}
+
+/* Botões */
+button{font:inherit;font-weight:800;min-width:80px;min-height:80px;padding:12px 24px;border-radius:22px;
+  border:4px solid #000;background:var(--acc);color:var(--acc-ink);cursor:pointer}
+button:active{transform:scale(.97)}
+button.sec{background:#fff;color:var(--card-ink)}
+button.discreto{background:transparent;color:#fff;border:3px solid #9fd6bd;font-weight:700}
+button:focus-visible{outline:6px solid #fff;outline-offset:4px}
+button:disabled{opacity:.6;cursor:default}
+.sem-anim button:active{transform:none}
+
+/* Início */
+#tela-home{align-items:center;justify-content:center;text-align:center}
+.selo{background:var(--bg2);border:3px solid #9fd6bd;border-radius:999px;padding:6px 24px}
+#tela-home h1{font-size:clamp(36px,7vmin,96px);line-height:1.05}
+.sub{font-size:clamp(26px,3.4vmin,44px)}
+.como{font-size:clamp(24px,2.8vmin,36px);max-width:1100px}
+.niveis{display:flex;flex-wrap:wrap;gap:2vmin;justify-content:center;width:100%;max-width:1500px}
+.nivel{flex:1 1 300px;min-height:min(24vmin,220px);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:4px}
+.n-num{font-size:clamp(32px,5vmin,64px);line-height:1}
+.n-desc{font-size:clamp(24px,2.8vmin,34px)}
+.nivel .en{color:#5b3a00}
+.ajustes{display:flex;flex-wrap:wrap;gap:2vmin;justify-content:center}
+
+/* Jogo */
+.topo{display:flex;flex-wrap:wrap;align-items:center;gap:1.5vmin}
+.topo .esp{flex:1}
+.pill{background:var(--bg2);border:3px solid #9fd6bd;border-radius:999px;padding:8px 22px}
+#tabuleiro{flex:1;min-height:0;display:grid;gap:1.8vmin;
+  grid-template-columns:repeat(var(--cols,3),minmax(0,1fr));grid-template-rows:repeat(var(--rows,2),minmax(0,1fr))}
+.legenda{min-height:2.6em;display:flex;align-items:center;justify-content:center;text-align:center;
+  background:#000;border-radius:18px;padding:8px 20px;font-size:clamp(24px,2.8vmin,36px)}
+.legenda .en{color:var(--en-dark)}
+
+/* Cartas */
+.carta{padding:0;border:0;background:none;border-radius:22px;perspective:1000px;position:relative;width:100%;height:100%;
+  min-width:80px;min-height:80px}
+.inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .55s ease}
+.carta.virada .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:22px;border:5px solid #000;overflow:hidden;
+  -webkit-backface-visibility:hidden;backface-visibility:hidden;display:flex;flex-direction:column;
+  align-items:center;justify-content:center}
+.verso{background:#1c6b4a radial-gradient(circle at 25% 25%,#2d8f66 0 12%,transparent 13%),
+  radial-gradient(circle at 75% 70%,#2d8f66 0 14%,transparent 15%);color:#fff}
+.interr{font-size:clamp(40px,9vmin,110px);font-weight:900;line-height:1}
+.frente{transform:rotateY(180deg);background:#fff;color:var(--card-ink);text-align:center;padding:1vmin}
+.frente svg{width:100%;height:100%}
+.frente.nome{gap:.4em;padding:1.2vmin}
+.n-pt{font-size:clamp(24px,3.2vmin,40px);line-height:1.1;overflow-wrap:break-word;hyphens:manual}
+.n-en{font-size:clamp(24px,2.4vmin,32px);line-height:1.1;color:var(--en-light)}
+.par .frente{border-color:var(--ok);box-shadow:0 0 0 6px var(--glow)}
+.par .frente::after{content:"✓";position:absolute;top:2px;right:10px;font-size:34px;font-weight:900;color:var(--ok)}
+.par.novo .frente{animation:brilho .9s ease-out 2}
+@keyframes brilho{0%{box-shadow:0 0 0 0 rgba(125,255,178,.95)}100%{box-shadow:0 0 0 26px rgba(125,255,178,0)}}
+.sem-anim *{animation:none!important;transition:none!important}
+.sem-anim .carta .inner{transform:none!important}
+.sem-anim .frente{transform:none;display:none}
+.sem-anim .carta.virada .frente{display:flex}
+.sem-anim .carta.virada .verso{display:none}
+
+/* Fim */
+#tela-fim{align-items:center;text-align:center}
+#tela-fim h1{font-size:clamp(32px,5.4vmin,72px);line-height:1.1}
+.msg{font-size:clamp(26px,3.2vmin,42px)}
+.resumo{list-style:none;margin:0;padding:0;display:grid;gap:1.4vmin;width:100%;max-width:1500px;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
+.resumo li{display:flex;align-items:center;gap:14px;text-align:left;background:#fff;color:var(--card-ink);
+  border-radius:18px;padding:8px 14px;border:4px solid #000}
+.resumo li svg{flex:0 0 72px;width:72px;height:72px}
+.resumo .en{color:var(--en-light)}
+.fim-btns{display:flex;flex-wrap:wrap;gap:2vmin;justify-content:center}
+
+/* Rodapé */
+.rodape{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 2vmin;min-height:80px;
+  background:#0a2018;border-top:3px solid #2e6b52}
+
+/* Janelas */
+.modal{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:2vmin;
+  background:rgba(0,0,0,.8)}
+.painel{background:#fff;color:var(--card-ink);border:6px solid var(--acc);border-radius:30px;padding:3vmin;
+  width:100%;max-width:1150px;max-height:100%;overflow:auto;display:flex;flex-wrap:wrap;gap:3vmin;
+  align-items:center;justify-content:center;animation:entra .35s ease-out}
+@keyframes entra{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.painel .arte{flex:0 0 min(36vmin,340px);width:min(36vmin,340px);height:min(36vmin,340px)}
+.painel .arte svg{width:100%;height:100%}
+.painel .texto{flex:1 1 360px;display:flex;flex-direction:column;gap:1.4vmin}
+.painel h2{font-size:clamp(32px,5vmin,60px);line-height:1.05}
+.painel .t-en{font-size:clamp(26px,3vmin,38px)}
+.painel .fato{font-size:clamp(26px,3.4vmin,44px);line-height:1.25}
+.painel .acoes{display:flex;flex-wrap:wrap;gap:2vmin;margin-top:1vmin}
+.pequeno{flex-direction:column;align-items:stretch;max-width:950px}
+.pequeno dl{margin:0;display:grid;gap:10px}
+.pequeno dt{font-weight:900}
+.pequeno dd{margin:0 0 6px}
+.pequeno .url{font-weight:500;overflow-wrap:anywhere;color:#2a3a33}
+.painel.pequeno{justify-content:flex-start;align-items:stretch;max-width:1700px;gap:1.6vmin}
+.pequeno h2{font-size:clamp(32px,4.4vmin,56px)}
+.pequeno dl{gap:6px}
+.pequeno dd{margin:0 0 4px}
+.rotulo{font-weight:900;margin:0 0 6px}
+.prompt-box{white-space:pre-wrap;overflow-wrap:anywhere;font-weight:500;font-size:24px;line-height:1.35;
+  background:#eef3ef;border:3px solid #2e6b52;border-radius:16px;padding:14px 18px;
+  max-height:min(26vh,360px);overflow:auto;-webkit-user-select:text;user-select:text}
+@media (orientation:landscape){
+  .painel.pequeno{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);column-gap:3vmin;align-content:start}
+  .pequeno h2,.pequeno>button{grid-column:1 / -1}
+  .pequeno .prompt-wrap{display:flex;flex-direction:column;min-height:0}
+  .prompt-box{max-height:min(62vh,640px)}
+}
+.prompt-box:focus-visible{outline:6px solid #0b5d9e;outline-offset:2px}
+.aviso{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:20;background:var(--acc);
+  color:var(--acc-ink);border:4px solid #000;border-radius:20px;padding:14px 28px;max-width:92vw;text-align:center;
+  font-weight:800}
+</style>
+</head>
+<body>
+<noscript>Este jogo precisa de JavaScript.</noscript>
+
+<div id="app">
+  <!-- TELA INICIAL -->
+  <section class="screen" id="tela-home" aria-labelledby="titulo-home">
+    <p class="selo">ODS 15 · Vida Terrestre · <span class="en" lang="en">Life on Land</span></p>
+    <h1 id="titulo-home">Memória da Vida Terrestre</h1>
+    <p class="sub">Descubra bichos e plantas do Rio Grande do Sul!</p>
+    <p class="como">Toque numa carta. Ache a imagem e o nome que combinam. Jogue em equipe!</p>
+    <div class="niveis" role="group" aria-label="Escolha o nível">
+      <button class="nivel" data-nivel="1"><span class="n-num">Nível 1</span><span class="n-desc">Fácil · 6 cartas</span><span class="en" lang="en">Easy · 3 pairs</span></button>
+      <button class="nivel" data-nivel="2"><span class="n-num">Nível 2</span><span class="n-desc">Médio · 8 cartas</span><span class="en" lang="en">Medium · 4 pairs</span></button>
+      <button class="nivel" data-nivel="3"><span class="n-num">Nível 3</span><span class="n-desc">Difícil · 12 cartas</span><span class="en" lang="en">Hard · 6 pairs</span></button>
+    </div>
+    <div class="ajustes">
+      <button class="sec btn-narrar" aria-pressed="false"></button>
+      <button class="sec btn-anim" aria-pressed="true"></button>
+    </div>
+  </section>
+
+  <!-- JOGO -->
+  <section class="screen" id="tela-jogo" hidden aria-labelledby="titulo-jogo">
+    <div class="topo">
+      <button class="sec" id="btn-inicio">← Início</button>
+      <h2 id="titulo-jogo" class="pill"></h2>
+      <span id="contador" class="pill" aria-live="polite"></span>
+      <span class="esp"></span>
+      <button class="sec btn-narrar" aria-pressed="false"></button>
+      <button class="sec btn-anim" aria-pressed="true"></button>
+    </div>
+    <div id="tabuleiro" role="group" aria-label="Tabuleiro de cartas"></div>
+    <p id="legenda" class="legenda" aria-live="polite"></p>
+  </section>
+
+  <!-- FIM DE NÍVEL -->
+  <section class="screen" id="tela-fim" hidden aria-labelledby="fim-titulo">
+    <h1 id="fim-titulo"></h1>
+    <p class="msg" id="fim-msg"></p>
+    <ul class="resumo" id="fim-lista" aria-label="O que você aprendeu"></ul>
+    <p class="msg" id="fim-dica"></p>
+    <div class="fim-btns">
+      <button id="btn-proximo">Próximo nível ▶</button>
+      <button class="sec" id="btn-repetir">↺ Jogar de novo</button>
+      <button class="sec" id="btn-fim-inicio">← Início</button>
+    </div>
+  </section>
+
+  <footer class="rodape">
+    <span>Museu Scientiah · UFSM · ODS 15</span>
+    <button class="discreto btn-creditos">Créditos</button>
+  </footer>
+</div>
+
+<!-- Cartão de curiosidade -->
+<div id="modal-fato" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="fato-nome">
+  <div class="painel">
+    <div class="arte" id="fato-arte"></div>
+    <div class="texto">
+      <h2 id="fato-nome"></h2>
+      <p class="t-en en" id="fato-en" lang="en"></p>
+      <p class="fato" id="fato-texto"></p>
+      <div class="acoes">
+        <button id="fato-ouvir" class="sec">🔊 Ouvir</button>
+        <button id="fato-continuar">Continuar ▶</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Créditos -->
+<div id="modal-creditos" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="cred-titulo">
+  <div class="painel pequeno">
+    <h2 id="cred-titulo">Créditos</h2>
+    <dl>
+      <dt>Autoria humana: concepção, decisões pedagógicas e revisão</dt>
+      <dd>
+        <strong>Marcel Kraulich Tizotti</strong><br>
+        <span class="url">https://ead06.proj.ufsm.br/user/view.php?id=175650</span><br>
+        <strong>Welinton Michel da Silveira Marafiga</strong><br>
+        <span class="url">https://ead06.proj.ufsm.br/user/view.php?id=177422</span><br>
+        Estudantes de Letras-Inglês da UFSM.
+      </dd>
+      <dt>Docente</dt>
+      <dd>
+        <strong>Susana Cristina dos Reis</strong><br>
+        <span class="url">https://ead06.proj.ufsm.br/user/view.php?id=16344</span>
+      </dd>
+      <dt>Ferramentas de IA</dt>
+      <dd><span id="cred-ia"></span>, para geração de código (incluindo as ilustrações em SVG) e rascunho de textos.</dd>
+      <dt>Aviso</dt>
+      <dd><strong>Conteúdo gerado com apoio de IA e revisado por autoria humana.</strong></dd>
+      <dt>Tema e local</dt>
+      <dd>ODS 15 – Vida Terrestre (<span class="en" lang="en">Life on Land</span>). Museu Scientiah, UFSM, Santa Maria, RS.</dd>
+    </dl>
+    <div class="prompt-wrap">
+      <p class="rotulo" id="cred-prompt-rotulo">Prompt completo usado para gerar este jogo</p>
+      <div id="cred-prompt" class="prompt-box" tabindex="0" role="region" aria-labelledby="cred-prompt-rotulo"></div>
+    </div>
+    <button id="cred-fechar">Fechar (toque em qualquer lugar)</button>
+  </div>
+</div>
+
+<div id="aviso" class="aviso" role="status" hidden>Ainda por aí? Toque na tela para continuar.</div>
+
+<script>
+(() => {
+'use strict';
+
+/* ====== CONFIGURAÇÃO (edite aqui) ====== */
+const FERRAMENTA = 'Claude Sonnet 5.5 (Anthropic)';
+const PROMPT_CREDITOS = `Você é um designer de jogos educativos e desenvolvedor front-end. Crie um JOGO DE MEMÓRIA DIGITAL INTERATIVO em um único arquivo HTML (HTML, CSS e JavaScript puros, sem dependências externas, sem links externos, sem imagens externas) para um TOTEM INTERATIVO TOUCHSCREEN do Museu Scientiah (UFSM, Santa Maria, RS).
+
+PÚBLICO-ALVO
+Crianças de escolas públicas, do 5º ao 9º ano (10 a 14 anos), em visita ao museu. Muitas usam o totem pela primeira vez; duas ou três crianças podem jogar juntas (jogo em equipe, sem turnos).
+
+TEMA
+ODS 15 – Vida Terrestre (Life on Land). Ensinar a reconhecer e proteger espécies da fauna e da flora do Rio Grande do Sul (Pampa e Mata Atlântica). Use apenas informações cientificamente corretas e verificáveis. Se houver dúvida sobre um dado, não o inclua. Não afirme o status de conservação das espécies no estado.
+
+ESPÉCIES (10)
+Cada espécie tem: ilustração SVG original desenhada no próprio código (viewBox 200x200, fundo colorido, sem imagens externas), nome em português, nome em inglês, texto alternativo descrevendo a imagem e uma curiosidade de até 20 palavras com um termo-chave em inglês. Na curiosidade, o termo em inglês fica entre chaves, seguido da tradução entre parênteses, por exemplo {habitat} (lar). Os termos entre chaves aparecem destacados em itálico azul e são lidos pela narração com voz em inglês.
+1. Quero-quero (Southern lapwing): Faz o ninho no chão e grita alto para defender os filhotes. Campos preservados são seu {habitat} (lar).
+2. Tamanduá-bandeira (Giant anteater): Não tem dentes e come formigas e cupins. Fogo e atropelamentos ameaçam a espécie, que é {vulnerable} (vulnerável).
+3. Jaguatirica (Ocelot): Caça mais à noite e vive em matas. Proteger o {habitat} (lar natural) mantém a jaguatirica viva.
+4. Graxaim (Pampas fox): O graxaim-do-campo come frutos e insetos. Ao espalhar {seeds} (sementes), ajuda a natureza a crescer.
+5. Ipê-amarelo (Golden trumpet tree): Suas flores amarelas alimentam abelhas e outros {pollinators} (polinizadores). Plante árvores nativas!
+6. Araucária (Paraná pine): Dá o pinhão, alimento de gente e animais. Está {critically endangered} (em perigo crítico): proteja as florestas!
+7. Butiá (Jelly palm): Palmeira de frutos comestíveis. Proteger os butiazais (bosques de butiá) mantém o {habitat} dos bichos.
+8. Capivara (Capybara): É o maior {rodent} (roedor) do mundo e vive perto da água. Rios limpos protegem a capivara.
+9. Bugio-ruivo (Brown howler monkey): Ronca alto para se comunicar e come folhas e frutos. Precisa de florestas conectadas ({forest}) para viver.
+10. Veado-campeiro (Pampas deer): Vive em campos abertos. No mundo, é {near threatened} (quase ameaçado). Proteja os campos nativos!
+
+MECÂNICA
+- 3 níveis de dificuldade: 6, 8 e 12 cartas (3, 4 e 6 pares). A cada partida, sorteie as espécies e embaralhe as cartas.
+- Cada par combina a ILUSTRAÇÃO da espécie com um cartão contendo seu NOME em português e em inglês.
+- Ao formar um par, abra um cartão com a ilustração, o nome em português e inglês, a curiosidade e os botões "Ouvir" e "Continuar".
+- Ao final de cada nível, mostre uma mensagem de incentivo (em português com uma expressão em inglês, como "Great start!", "Amazing memory!" e "Mission accomplished!"), um resumo com a ilustração, o nome e o termo-chave em inglês de cada espécie aprendida, e a dica final: "Para proteger a vida terrestre (life on land): cuide do habitat e plante árvores nativas." Botões: "Próximo nível" (exceto no nível 3), "Jogar de novo" e "Início".
+- Não penalize erros com som nem texto negativo. Se as cartas não combinam, mostre "Quase! Olhe com calma e tente de novo. Try again!" e desvire as cartas depois de cerca de 1,6 s.
+- Contador "Pares: X de Y".
+
+TELAS E FLUXO
+1. Início: selo "ODS 15 · Vida Terrestre · Life on Land", título "Memória da Vida Terrestre", frase de boas-vindas, instrução curta, três botões grandes de nível (rótulos em português e inglês: Fácil/Easy, Médio/Medium, Difícil/Hard) e botões "Narração: ligada/desligada" e "Animações: ligadas/desligadas".
+2. Jogo: botão "← Início", título do nível, contador, botões de narração e animações, tabuleiro de cartas e uma legenda sempre visível (fundo preto, texto grande) que repete o que é narrado.
+3. Cartão de curiosidade (janela sobre o jogo).
+4. Fim de nível.
+5. Rodapé fixo em todas as telas: "Museu Scientiah · UFSM · ODS 15" e, à direita, um botão discreto "Créditos".
+Navegação em no máximo 2 toques para qualquer tela.
+
+REQUISITOS PARA TOTEM
+- Botões e cartas com no mínimo 80 px de área de toque; fonte com no mínimo 24 px; alto contraste (fundo verde-escuro #0e2a20, botões amarelos #ffd23f com texto escuro e borda preta, cartas brancas com borda preta).
+- Sem rolagem nas telas do jogo (a única área rolável é a caixa do prompt na janela de créditos), sem teclado, sem links externos, sem menus escondidos. Bloqueie zoom, seleção de texto e menu de contexto.
+- Layout responsivo para telas verticais e horizontais: o tabuleiro usa grade 3x2, 4x2 e 4x3 em paisagem e 2x3, 2x4 e 3x4 em retrato. Use unidades vmin e clamp() para os textos grandes.
+- Reiniciar automaticamente para a tela inicial após 60 segundos sem interação (constante OCIOSO_MS = 60000), com aviso gentil aos 50 segundos ("Ainda por aí? Toque na tela para continuar."). Ao reiniciar, feche janelas, cancele a narração e restaure os padrões de narração (desligada) e animações.
+- Narração em áudio com a síntese de voz do navegador (speechSynthesis): pt-BR para o texto e en-US para os termos entre chaves. Se o navegador não tiver síntese de voz, desative o botão e informe "Narração indisponível". Legendas sempre visíveis.
+
+ACESSIBILIDADE
+- Não depender só de cor: os pares encontrados mostram a cor verde, um contorno e o símbolo ✓.
+- Cada carta é um botão com aria-label dinâmico (posição, estado e, se virada, o nome da espécie ou a descrição da ilustração). Legenda e contador com aria-live. Foco visível em todos os botões. O foco vai para o título ao trocar de tela. Janelas com role="dialog" e aria-modal, e o restante do app com inert enquanto a janela está aberta.
+- Idioma da página pt-BR, e lang="en" nos trechos em inglês.
+
+MULTIMODALIDADE E ANIMAÇÕES
+Imagem, texto, áudio e animações suaves: carta que vira em 3D (rotateY, cerca de 0,55 s), brilho verde pulsante ao formar um par e janela que aparece com leve zoom. O botão "Animações" desativa todas as animações e transições; o padrão respeita prefers-reduced-motion.
+
+CRÉDITOS (OBRIGATÓRIO, DENTRO DO MATERIAL)
+Botão discreto "Créditos" no rodapé que abre uma janela com: autoria humana (concepção, decisões pedagógicas e revisão) de MARCEL KRAULICH TIZOTTI (https://ead06.proj.ufsm.br/user/view.php?id=175650) e WELINTON MICHEL DA SILVEIRA MARAFIGA (https://ead06.proj.ufsm.br/user/view.php?id=177422), estudantes de Letras-Inglês da UFSM; docente SUSANA CRISTINA DOS REIS (https://ead06.proj.ufsm.br/user/view.php?id=16344); ferramentas de IA usadas, para geração de código e rascunho de textos; este prompt completo em uma caixa com rolagem interna; o aviso "Conteúdo gerado com apoio de IA e revisado por autoria humana."; e a referência ao ODS 15 e ao Museu Scientiah. Os endereços aparecem como texto simples, sem links clicáveis. A janela fecha com um toque em qualquer lugar (exceto dentro da caixa do prompt) e não interrompe nem reinicia a partida.
+
+ENTREGA
+Entregue apenas o código completo do arquivo HTML único.`;
+const OCIOSO_MS = 60000;   // volta ao início após 60 s sem toque
+const AVISO_MS = 50000;    // aviso gentil aos 50 s
+const NIVEIS = {
+  1: { pares: 3, nome: 'Fácil',   en: 'Easy' },
+  2: { pares: 4, nome: 'Médio',   en: 'Medium' },
+  3: { pares: 6, nome: 'Difícil', en: 'Hard' }
+};
+
+/* ====== ILUSTRAÇÕES (SVG originais) ====== */
+const svg = (bg, inner) => `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true"><rect width="200" height="200" rx="18" fill="${bg}"/>${inner}</svg>`;
+
+const ART = {
+quero: svg('#dff3e4', `
+<rect y="150" width="200" height="50" fill="#9ccf7a"/>
+<path d="M60 150l4-14M70 152l2-14M135 152l-2-12M150 150l-4-12" stroke="#6fae4f" stroke-width="4" stroke-linecap="round"/>
+<g stroke="#d9534f" stroke-width="5" stroke-linecap="round"><path d="M98 132v28M114 132v28"/><path d="M98 160l-9 3M98 160l9 3M114 160l-9 3M114 160l9 3"/></g>
+<path d="M62 104L30 112l32 14z" fill="#2b2b2b"/>
+<ellipse cx="100" cy="110" rx="46" ry="28" fill="#8c7b58"/>
+<ellipse cx="108" cy="124" rx="34" ry="15" fill="#fff"/>
+<path d="M64 104q30-22 66-6q-30 22-66 6z" fill="#6c5d43"/>
+<ellipse cx="132" cy="88" rx="14" ry="26" fill="#d6d6d6"/>
+<ellipse cx="134" cy="100" rx="14" ry="10" fill="#1c1c1c"/>
+<circle cx="143" cy="62" r="16" fill="#c4c4c4"/>
+<path d="M130 56q8-12 20-8q-2 10-12 14z" fill="#1c1c1c"/>
+<path d="M136 52L108 36" stroke="#1c1c1c" stroke-width="3" stroke-linecap="round"/>
+<circle cx="148" cy="60" r="3.5" fill="#c0392b"/>
+<path d="M157 61l16 4-16 5z" fill="#e8a33d"/>`),
+
+tamandua: svg('#fbe9c8', `
+<rect y="152" width="200" height="48" fill="#c9a86a"/>
+<path d="M130 100C165 70 195 100 188 140C182 160 150 160 138 128z" fill="#6b645a"/>
+<path d="M152 112C166 104 178 114 176 130" stroke="#8b8478" stroke-width="3" fill="none" stroke-linecap="round"/>
+<g stroke="#4f4940" stroke-width="10" stroke-linecap="round"><path d="M82 130v28M98 134v26M124 132v26M140 126v32"/></g>
+<ellipse cx="106" cy="112" rx="46" ry="28" fill="#8d8478"/>
+<path d="M74 92L90 84L124 126L106 138z" fill="#fff"/>
+<path d="M80 92L90 87L116 124L106 132z" fill="#1b1b1b"/>
+<path d="M76 86C58 94 38 112 22 124l3 5c18-1 42-4 56-12z" fill="#9b9488"/>
+<circle cx="58" cy="102" r="3" fill="#111"/>
+<ellipse cx="72" cy="85" rx="6" ry="5" fill="#6f685d"/>`),
+
+jaguatirica: svg('#d3eed9', `
+<circle cx="30" cy="40" r="22" fill="#9ed3a0"/><circle cx="175" cy="150" r="26" fill="#9ed3a0"/>
+<circle cx="58" cy="66" r="18" fill="#d9a441"/><circle cx="142" cy="66" r="18" fill="#d9a441"/>
+<circle cx="58" cy="66" r="9" fill="#2b2118"/><circle cx="142" cy="66" r="9" fill="#2b2118"/>
+<ellipse cx="100" cy="108" rx="56" ry="50" fill="#e0aa4a"/>
+<g stroke="#4a2f10" stroke-width="5" stroke-linecap="round" fill="none"><path d="M86 62l2 16M100 58v18M114 62l-2 16"/><path d="M50 104l-12 10M50 116l-10 14M150 104l12 10M150 116l10 14"/></g>
+<g fill="#4a2f10"><ellipse cx="64" cy="80" rx="5" ry="3.5"/><ellipse cx="136" cy="80" rx="5" ry="3.5"/><ellipse cx="52" cy="92" rx="4" ry="3"/><ellipse cx="148" cy="92" rx="4" ry="3"/><ellipse cx="62" cy="130" rx="4" ry="3"/><ellipse cx="138" cy="130" rx="4" ry="3"/></g>
+<ellipse cx="100" cy="132" rx="26" ry="20" fill="#fff3d6"/>
+<circle cx="78" cy="96" r="10" fill="#fff"/><circle cx="122" cy="96" r="10" fill="#fff"/>
+<circle cx="78" cy="96" r="6.5" fill="#8a5a14"/><circle cx="122" cy="96" r="6.5" fill="#8a5a14"/>
+<circle cx="78" cy="96" r="3" fill="#000"/><circle cx="122" cy="96" r="3" fill="#000"/>
+<path d="M92 118h16l-8 9z" fill="#c9737a"/>
+<path d="M100 127v7M100 134q-8 8-16 2M100 134q8 8 16 2" stroke="#4a2f10" stroke-width="3" fill="none" stroke-linecap="round"/>`),
+
+graxaim: svg('#e9f3d2', `
+<rect y="150" width="200" height="50" fill="#a6c97a"/>
+<path d="M138 112C160 90 190 100 188 118C170 130 150 134 138 128z" fill="#8c8576"/>
+<path d="M176 100C190 100 192 116 186 120C180 116 176 108 176 100z" fill="#222"/>
+<g stroke="#4a463e" stroke-width="8" stroke-linecap="round"><path d="M80 134v28M94 138v24M122 138v24M136 132v30"/></g>
+<ellipse cx="106" cy="118" rx="42" ry="24" fill="#a39b8a"/>
+<path d="M68 90L90 98L92 120L66 112z" fill="#c9a27a"/>
+<circle cx="62" cy="88" r="20" fill="#b5ad9b"/>
+<path d="M48 88L22 100L48 108z" fill="#b5ad9b"/>
+<circle cx="22" cy="100" r="3.5" fill="#111"/>
+<path d="M52 74L50 46L68 68zM66 70L80 48L80 74z" fill="#c9783d"/>
+<circle cx="56" cy="86" r="3" fill="#111"/>`),
+
+ipe: svg('#cfeaf7', `
+<rect y="160" width="200" height="40" fill="#8fcf70"/>
+<path d="M96 120L88 84M96 112L112 84M96 124L74 96" stroke="#6b4a2b" stroke-width="9" stroke-linecap="round" fill="none"/>
+<path d="M90 172L94 120h12l4 52z" fill="#6b4a2b"/>
+<g fill="#ffd400"><circle cx="70" cy="70" r="24"/><circle cx="104" cy="52" r="28"/><circle cx="138" cy="72" r="24"/><circle cx="100" cy="84" r="22"/><circle cx="60" cy="96" r="16"/><circle cx="148" cy="98" r="16"/></g>
+<g fill="#f5a200"><circle cx="64" cy="64" r="4"/><circle cx="82" cy="78" r="4"/><circle cx="100" cy="44" r="4"/><circle cx="116" cy="60" r="4"/><circle cx="134" cy="66" r="4"/><circle cx="150" cy="82" r="4"/><circle cx="100" cy="88" r="4"/><circle cx="56" cy="92" r="4"/></g>
+<g fill="#ffd400"><circle cx="40" cy="176" r="5"/><circle cx="56" cy="184" r="5"/><circle cx="150" cy="178" r="5"/><circle cx="166" cy="186" r="5"/></g>`),
+
+araucaria: svg('#e3eef8', `
+<rect y="162" width="200" height="38" fill="#7fbf6a"/>
+<rect x="95" y="70" width="10" height="96" fill="#5b4030"/>
+<path d="M100 76C80 70 56 66 34 54M100 76C120 70 144 66 166 54M100 70C96 56 96 44 100 34M100 74C84 62 70 52 62 40M100 74C116 62 130 52 138 40" stroke="#4a3426" stroke-width="5" fill="none" stroke-linecap="round"/>
+<g fill="#2f7d44"><ellipse cx="100" cy="58" rx="62" ry="14"/><ellipse cx="40" cy="48" rx="24" ry="12"/><ellipse cx="160" cy="48" rx="24" ry="12"/><ellipse cx="100" cy="34" rx="24" ry="12"/><ellipse cx="66" cy="38" rx="20" ry="10"/><ellipse cx="134" cy="38" rx="20" ry="10"/></g>
+<g fill="#8a4b2a"><ellipse cx="62" cy="176" rx="7" ry="4" transform="rotate(-20 62 176)"/><ellipse cx="80" cy="184" rx="7" ry="4"/><ellipse cx="140" cy="178" rx="7" ry="4" transform="rotate(20 140 178)"/></g>`),
+
+butia: svg('#fff1d6', `
+<rect y="162" width="200" height="38" fill="#b9d37d"/>
+<rect x="88" y="96" width="24" height="70" rx="8" fill="#8a6a45"/>
+<path d="M90 112h20M90 128h20M90 144h20" stroke="#6f5336" stroke-width="3"/>
+<g fill="#3d8f4a">
+<path d="M100 96C75 54 44 40 16 52C50 56 76 76 100 96z"/>
+<path d="M100 98C70 82 40 92 20 120C52 102 78 100 100 98z"/>
+<path d="M100 96C125 54 156 40 184 52C150 56 124 76 100 96z"/>
+<path d="M100 98C130 82 160 92 180 120C148 102 122 100 100 98z"/>
+<path d="M100 96C90 56 94 30 100 14C106 30 110 56 100 96z"/></g>
+<g fill="#f39c12"><circle cx="92" cy="102" r="6"/><circle cx="100" cy="106" r="6"/><circle cx="108" cy="102" r="6"/><circle cx="96" cy="113" r="6"/><circle cx="104" cy="113" r="6"/></g>`),
+
+capivara: svg('#d8f0f5', `
+<ellipse cx="110" cy="118" rx="54" ry="32" fill="#8a5a33"/>
+<ellipse cx="54" cy="102" rx="26" ry="21" fill="#9a6a3f"/>
+<ellipse cx="34" cy="106" rx="13" ry="15" fill="#8a5a33"/>
+<circle cx="28" cy="99" r="3" fill="#111"/>
+<circle cx="54" cy="93" r="3.5" fill="#111"/>
+<ellipse cx="70" cy="84" rx="7" ry="6" fill="#6e4425"/>
+<rect y="132" width="200" height="68" fill="#4fa8cf" opacity=".92"/>
+<path d="M10 148q15-8 30 0t30 0 30 0 30 0 30 0M0 170q15-8 30 0t30 0 30 0 30 0 30 0 30 0" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>`),
+
+bugio: svg('#dff0d8', `
+<g fill="#4f9a56"><ellipse cx="30" cy="30" rx="26" ry="12" transform="rotate(-20 30 30)"/><ellipse cx="170" cy="36" rx="28" ry="12" transform="rotate(15 170 36)"/><ellipse cx="160" cy="172" rx="28" ry="12" transform="rotate(-15 160 172)"/><ellipse cx="36" cy="170" rx="26" ry="12" transform="rotate(10 36 170)"/></g>
+<path d="M4 128L196 114" stroke="#6b4a2b" stroke-width="12" stroke-linecap="round"/>
+<path d="M126 104C156 96 172 130 150 150C138 160 122 150 132 142" stroke="#a4481b" stroke-width="9" fill="none" stroke-linecap="round"/>
+<ellipse cx="102" cy="94" rx="30" ry="34" fill="#b5541f"/>
+<path d="M90 92L74 120M112 118L120 122" stroke="#a4481b" stroke-width="10" stroke-linecap="round"/>
+<circle cx="84" cy="54" r="21" fill="#a4481b"/>
+<ellipse cx="78" cy="58" rx="11" ry="12" fill="#3a2a22"/>
+<ellipse cx="82" cy="78" rx="15" ry="12" fill="#c9652a"/>
+<circle cx="74" cy="54" r="3.5" fill="#fff"/><circle cx="74" cy="54" r="1.8" fill="#000"/>
+<ellipse cx="98" cy="42" rx="5" ry="6" fill="#8a3a14"/>`),
+
+veado: svg('#f6edd0', `
+<rect y="160" width="200" height="40" fill="#cdb86c"/>
+<path d="M20 176l4-14M34 180l2-16M170 176l-2-14M184 180l-3-16" stroke="#8fae4a" stroke-width="4" stroke-linecap="round"/>
+<g stroke="#8a5a2b" stroke-width="6" stroke-linecap="round"><path d="M85 124l-2 38M98 128v34M125 128l2 34M138 122l4 40"/></g>
+<ellipse cx="110" cy="110" rx="42" ry="22" fill="#c18a50"/>
+<ellipse cx="110" cy="124" rx="30" ry="8" fill="#fff4e0"/>
+<path d="M148 100L160 92L156 108z" fill="#a96f3a"/>
+<path d="M78 102L92 98L70 62L58 70z" fill="#c18a50"/>
+<ellipse cx="52" cy="62" rx="15" ry="9" transform="rotate(-15 52 62)" fill="#cf9a60"/>
+<circle cx="39" cy="67" r="3" fill="#222"/><circle cx="54" cy="58" r="2.5" fill="#111"/>
+<path d="M62 54L78 44L70 62z" fill="#b57a43"/>
+<g stroke="#5a3b1a" stroke-width="3" fill="none" stroke-linecap="round"><path d="M62 50L62 30M62 37L52 29M62 30L70 22"/><path d="M68 52L76 32M76 32L84 26"/></g>`)
+};
+
+/* ====== ESPÉCIES ======
+   Termos em inglês ficam entre { } (viram destaque e são lidos com voz em inglês). */
+const ESPECIES = [
+ { id:'quero', pt:'Quero-quero', en:'Southern lapwing',
+   alt:'ave cinza e marrom, de peito preto e crista fina, em pé no campo',
+   fato:'Faz o ninho no chão e grita alto para defender os filhotes. Campos preservados são seu {habitat} (lar).',
+   termo:['habitat','lar'] },
+ { id:'tamandua', pt:'Tamanduá-bandeira', en:'Giant anteater',
+   alt:'animal de focinho comprido, cauda peluda e faixa preta no corpo',
+   fato:'Não tem dentes e come formigas e cupins. Fogo e atropelamentos ameaçam a espécie, que é {vulnerable} (vulnerável).',
+   termo:['vulnerable','vulnerável'] },
+ { id:'jaguatirica', pt:'Jaguatirica', en:'Ocelot',
+   alt:'rosto de gato selvagem com manchas escuras e olhos grandes',
+   fato:'Caça mais à noite e vive em matas. Proteger o {habitat} (lar natural) mantém a jaguatirica viva.',
+   termo:['habitat','lar natural'] },
+ { id:'graxaim', pt:'Graxaim', en:'Pampas fox',
+   alt:'raposa cinzenta de orelhas avermelhadas e cauda peluda',
+   fato:'O graxaim-do-campo come frutos e insetos. Ao espalhar {seeds} (sementes), ajuda a natureza a crescer.',
+   termo:['seeds','sementes'] },
+ { id:'ipe', pt:'Ipê-amarelo', en:'Golden trumpet tree',
+   alt:'árvore coberta de flores amarelas',
+   fato:'Suas flores amarelas alimentam abelhas e outros {pollinators} (polinizadores). Plante árvores nativas!',
+   termo:['pollinators','polinizadores'] },
+ { id:'araucaria', pt:'Araucária', en:'Paraná pine',
+   alt:'árvore alta de tronco reto e copa larga e achatada no alto, com pinhões no chão',
+   fato:'Dá o pinhão, alimento de gente e animais. Está {critically endangered} (em perigo crítico): proteja as florestas!',
+   termo:['critically endangered','em perigo crítico'] },
+ { id:'butia', pt:'Butiá', en:'Jelly palm',
+   alt:'palmeira baixa de folhas arqueadas e frutos alaranjados',
+   fato:'Palmeira de frutos comestíveis. Proteger os butiazais (bosques de butiá) mantém o {habitat} dos bichos.',
+   termo:['habitat','lar'] },
+ { id:'capivara', pt:'Capivara', en:'Capybara',
+   alt:'animal marrom e robusto, de focinho largo, dentro da água',
+   fato:'É o maior {rodent} (roedor) do mundo e vive perto da água. Rios limpos protegem a capivara.',
+   termo:['rodent','roedor'] },
+ { id:'bugio', pt:'Bugio-ruivo', en:'Brown howler monkey',
+   alt:'macaco de pelo avermelhado e barba, pendurado em um galho',
+   fato:'Ronca alto para se comunicar e come folhas e frutos. Precisa de florestas conectadas ({forest}) para viver.',
+   termo:['forest','floresta'] },
+ { id:'veado', pt:'Veado-campeiro', en:'Pampas deer',
+   alt:'veado de pelo claro com chifres ramificados, em um campo',
+   fato:'Vive em campos abertos. No mundo, é {near threatened} (quase ameaçado). Proteja os campos nativos!',
+   termo:['near threatened','quase ameaçado'] }
+];
+ESPECIES.forEach(e => { e.svg = ART[e.id]; });
+const POR_ID = Object.fromEntries(ESPECIES.map(e => [e.id, e]));
+
+const MSG = {
+  1: 'Ótimo começo! Você já conhece 3 espécies do Rio Grande do Sul. {Great start!}',
+  2: 'Que memória incrível! Você descobriu 4 espécies e como protegê-las. {Amazing memory!}',
+  3: 'Missão cumprida! Você conhece 6 espécies e ajuda a proteger a vida terrestre. {Mission accomplished!}'
+};
+const DICA = 'Para proteger a vida terrestre ({life on land}): cuide do {habitat} e plante árvores nativas.';
+
+/* ====== UTILIDADES ====== */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const htmlEN = s => s.replace(/\{([^}]+)\}/g, '<span class="en" lang="en">$1</span>');
+const plain = s => s.replace(/[{}]/g, '');
+function embaralhar(a){ const r=a.slice(); for(let i=r.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [r[i],r[j]]=[r[j],r[i]]; } return r; }
+
+const temVoz = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+const reduz = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+const PADRAO = { narrar:false, anim:!reduz };
+
+const state = { tela:'home', nivel:1, cartas:[], abertas:[], travado:false, achados:0, esc:[], rodada:0,
+  narrar:PADRAO.narrar, anim:PADRAO.anim, fato:null };
+
+const app = $('#app'), tab = $('#tabuleiro'), leg = $('#legenda');
+const telas = { home:$('#tela-home'), jogo:$('#tela-jogo'), fim:$('#tela-fim') };
+const modalFato = $('#modal-fato'), modalCred = $('#modal-creditos'), aviso = $('#aviso');
+let focoAnterior = null;
+
+/* ====== NARRAÇÃO ====== */
+let vozes = [];
+const normLang = l => String(l || '').replace('_','-').toLowerCase();
+function achar(lang){
+  const alvo = normLang(lang), base = alvo.slice(0,2);
+  return vozes.find(v => normLang(v.lang) === alvo) ||
+         vozes.find(v => normLang(v.lang).startsWith(base)) || null;
+}
+// Narração só fica indisponível se a lista de vozes já carregou e não há voz em português.
+// Lista vazia = ainda carregando (ou navegador que não informa): mantém disponível.
+const narracaoOk = () => temVoz && !(vozes.length > 0 && !achar('pt-BR'));
+function carregarVozes(){
+  if(!temVoz) return;
+  vozes = speechSynthesis.getVoices() || [];
+  if(!narracaoOk() && state.narrar){ state.narrar = false; speechSynthesis.cancel(); }
+  aplicarPrefs();
+}
+function falar(texto){
+  if(!temVoz) return;
+  speechSynthesis.cancel();
+  texto.split(/(\{[^}]+\})/).filter(Boolean).forEach(p => {
+    const en = p.startsWith('{'); const t = en ? p.slice(1,-1) : p;
+    if(!t.trim()) return;
+    const u = new SpeechSynthesisUtterance(t);
+    u.lang = en ? 'en-US' : 'pt-BR'; u.rate = .9;
+    const v = achar(u.lang); if(v) u.voice = v;
+    speechSynthesis.speak(u);
+  });
+}
+const narrar = t => { if(state.narrar) falar(t); };
+function legenda(texto, falarAgora = true){
+  leg.innerHTML = htmlEN(texto);
+  if(falarAgora) narrar(texto);
+}
+
+/* ====== PREFERÊNCIAS ====== */
+function aplicarPrefs(){
+  document.body.classList.toggle('sem-anim', !state.anim);
+  $$('.btn-narrar').forEach(b => {
+    if(!narracaoOk()){ b.disabled = true; b.textContent = 'Narração indisponível'; b.setAttribute('aria-pressed','false'); return; }
+    b.disabled = false;
+    b.textContent = 'Narração: ' + (state.narrar ? 'ligada' : 'desligada');
+    b.setAttribute('aria-pressed', String(state.narrar));
+  });
+  $$('.btn-anim').forEach(b => {
+    b.textContent = 'Animações: ' + (state.anim ? 'ligadas' : 'desligadas');
+    b.setAttribute('aria-pressed', String(state.anim));
+  });
+}
+function alternarNarracao(){
+  if(!narracaoOk()) return;
+  state.narrar = !state.narrar; aplicarPrefs();
+  if(state.narrar) falar('Narração ligada.'); else speechSynthesis.cancel();
+}
+function alternarAnim(){ state.anim = !state.anim; aplicarPrefs(); }
+
+/* ====== TELAS ====== */
+function mostrar(nome){
+  state.tela = nome;
+  Object.keys(telas).forEach(k => { telas[k].hidden = (k !== nome); });
+  const h = telas[nome].querySelector('h1,h2');
+  if(h){ h.tabIndex = -1; h.focus({preventScroll:true}); }
+}
+function ajustarGrade(){
+  const n = state.cartas.length || 6;
+  const pais = window.innerWidth >= window.innerHeight;
+  const mapa = { 6: pais?[3,2]:[2,3], 8: pais?[4,2]:[2,4], 12: pais?[4,3]:[3,4] };
+  const [c,r] = mapa[n] || [3,2];
+  tab.style.setProperty('--cols', c); tab.style.setProperty('--rows', r);
+}
+function atualizarContador(){
+  const np = NIVEIS[state.nivel].pares;
+  $('#contador').textContent = `Pares: ${state.achados} de ${np}`;
+}
+
+/* ====== JOGO ====== */
+function iniciarNivel(n){
+  state.nivel = n; state.rodada++;
+  const np = NIVEIS[n].pares;
+  state.esc = embaralhar(ESPECIES).slice(0, np);
+  const cartas = [];
+  state.esc.forEach(e => {
+    cartas.push({ id:e.id, tipo:'img', virada:false, par:false });
+    cartas.push({ id:e.id, tipo:'nome', virada:false, par:false });
+  });
+  state.cartas = embaralhar(cartas);
+  state.abertas = []; state.travado = false; state.achados = 0;
+  $('#titulo-jogo').textContent = `Nível ${n} · ${NIVEIS[n].nome}`;
+  ajustarGrade(); renderTabuleiro(); atualizarContador();
+  mostrar('jogo');
+  legenda('Toque numa carta. Ache a imagem e o nome que combinam! {Find the pair!}');
+}
+function renderTabuleiro(){
+  tab.textContent = '';
+  state.cartas.forEach((c, i) => {
+    const e = POR_ID[c.id];
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'carta';
+    const frente = c.tipo === 'img'
+      ? `<span class="face frente img">${e.svg}</span>`
+      : `<span class="face frente nome"><strong class="n-pt">${e.pt}</strong><span class="n-en en" lang="en">${e.en}</span></span>`;
+    b.innerHTML = `<span class="inner"><span class="face verso" aria-hidden="true"><span class="interr">?</span></span>${frente}</span>`;
+    b.addEventListener('click', () => virar(i));
+    tab.appendChild(b);
+    atualizarCarta(i);
+  });
+}
+function rotulo(c, i){
+  const e = POR_ID[c.id], pos = `Carta ${i+1} de ${state.cartas.length}`;
+  if(c.par) return `${pos}. Par encontrado: ${e.pt}, em inglês ${e.en}.`;
+  if(!c.virada) return `${pos}. Virada para baixo. Toque para virar.`;
+  return c.tipo === 'img'
+    ? `${pos}. Ilustração de ${e.pt}: ${e.alt}.`
+    : `${pos}. Nome: ${e.pt}, em inglês ${e.en}.`;
+}
+function atualizarCarta(i, novo){
+  const c = state.cartas[i], el = tab.children[i];
+  el.classList.toggle('virada', c.virada || c.par);
+  el.classList.toggle('par', c.par);
+  el.classList.toggle('novo', !!novo);
+  el.setAttribute('aria-label', rotulo(c, i));
+}
+function virar(i){
+  if(state.travado) return;
+  const c = state.cartas[i];
+  if(c.virada || c.par) return;
+  c.virada = true; state.abertas.push(i); atualizarCarta(i);
+  const e = POR_ID[c.id];
+  if(state.abertas.length === 1){
+    legenda('Agora vire outra carta.', false);
+    narrar(c.tipo === 'img' ? `Ilustração de ${e.pt}.` : `${e.pt}. {${e.en}}.`);
+    return;
+  }
+  state.travado = true;
+  narrar(c.tipo === 'img' ? `Ilustração de ${e.pt}.` : `${e.pt}. {${e.en}}.`);
+  checar();
+}
+function checar(){
+  const [a,b] = state.abertas, ca = state.cartas[a], cb = state.cartas[b], rod = state.rodada;
+  if(ca.id === cb.id){
+    ca.par = cb.par = true; state.achados++;
+    atualizarCarta(a, true); atualizarCarta(b, true); atualizarContador();
+    legenda('Par encontrado! {Great!}', false);
+    setTimeout(() => { if(rod === state.rodada) abrirFato(POR_ID[ca.id]); }, state.anim ? 1000 : 400);
+  } else {
+    legenda('Quase! Olhe com calma e tente de novo. {Try again!}', false);
+    setTimeout(() => {
+      if(rod !== state.rodada) return;
+      ca.virada = cb.virada = false; atualizarCarta(a); atualizarCarta(b);
+      state.abertas = []; state.travado = false;
+    }, 1600);
+  }
+}
+
+/* ====== CARTÃO DE CURIOSIDADE ====== */
+function abrirFato(e){
+  state.fato = e;
+  $('#fato-arte').innerHTML = e.svg;
+  $('#fato-nome').textContent = e.pt;
+  $('#fato-en').textContent = e.en;
+  $('#fato-texto').innerHTML = htmlEN(e.fato);
+  modalFato.hidden = false; app.inert = true;
+  $('#fato-continuar').focus();
+  if(state.narrar) falarFato();
+}
+function falarFato(){ const e = state.fato; if(e) falar(`${e.pt}. {${e.en}}. ${e.fato}`); }
+function fecharFato(){
+  modalFato.hidden = true; app.inert = false;
+  if(temVoz) speechSynthesis.cancel();
+  if(state.achados === state.esc.length){ terminarNivel(); return; }
+  state.abertas = []; state.travado = false;
+  legenda('Muito bem! Vire outra carta.');
+  const prox = tab.querySelector('.carta:not(.par)'); if(prox) prox.focus();
+}
+
+/* ====== FIM DE NÍVEL ====== */
+function terminarNivel(){
+  const n = state.nivel;
+  $('#fim-titulo').innerHTML = `Nível ${n} concluído! ${htmlEN(`{Level ${n} complete!}`)}`;
+  $('#fim-msg').innerHTML = htmlEN(MSG[n]);
+  $('#fim-dica').innerHTML = htmlEN(DICA);
+  const ul = $('#fim-lista'); ul.textContent = '';
+  state.esc.forEach(e => {
+    const li = document.createElement('li');
+    li.innerHTML = `${e.svg}<span><strong>${e.pt}</strong> <span class="en" lang="en">(${e.en})</span><br><span class="en" lang="en">${e.termo[0]}</span> = ${e.termo[1]}</span>`;
+    ul.appendChild(li);
+  });
+  $('#btn-proximo').hidden = (n >= 3);
+  mostrar('fim');
+  narrar(`${MSG[n]} ${DICA}`);
+}
+
+/* ====== CRÉDITOS ====== */
+function abrirCreditos(){
+  focoAnterior = document.activeElement;
+  modalCred.hidden = false; app.inert = true; $('#cred-fechar').focus();
+}
+function fecharCreditos(){
+  modalCred.hidden = true; app.inert = false;
+  if(focoAnterior && document.contains(focoAnterior)) focoAnterior.focus();
+}
+
+/* ====== INATIVIDADE (60 s) ====== */
+let tOcioso = null, tAviso = null;
+const modalAberto = () => !modalFato.hidden || !modalCred.hidden;
+function armarOcioso(){
+  clearTimeout(tOcioso); clearTimeout(tAviso); aviso.hidden = true;
+  tAviso = setTimeout(() => { if(state.tela !== 'home' || modalAberto()) aviso.hidden = false; }, AVISO_MS);
+  tOcioso = setTimeout(reiniciarTotem, OCIOSO_MS);
+}
+function reiniciarTotem(){
+  state.rodada++;
+  if(temVoz) speechSynthesis.cancel();
+  modalFato.hidden = true; modalCred.hidden = true; app.inert = false; aviso.hidden = true;
+  state.narrar = PADRAO.narrar; state.anim = PADRAO.anim; aplicarPrefs();
+  mostrar('home');
+}
+
+/* ====== EVENTOS ====== */
+$$('.nivel').forEach(b => b.addEventListener('click', () => iniciarNivel(Number(b.dataset.nivel))));
+$$('.btn-narrar').forEach(b => b.addEventListener('click', alternarNarracao));
+$$('.btn-anim').forEach(b => b.addEventListener('click', alternarAnim));
+$$('.btn-creditos').forEach(b => b.addEventListener('click', abrirCreditos));
+$('#btn-inicio').addEventListener('click', () => { state.rodada++; if(temVoz) speechSynthesis.cancel(); mostrar('home'); });
+$('#btn-fim-inicio').addEventListener('click', () => { if(temVoz) speechSynthesis.cancel(); mostrar('home'); });
+$('#btn-repetir').addEventListener('click', () => iniciarNivel(state.nivel));
+$('#btn-proximo').addEventListener('click', () => iniciarNivel(state.nivel + 1));
+$('#fato-ouvir').addEventListener('click', falarFato);
+$('#fato-continuar').addEventListener('click', fecharFato);
+modalCred.addEventListener('click', fecharCreditos);
+document.addEventListener('keydown', ev => {
+  if(ev.key === 'Escape' && !modalCred.hidden) fecharCreditos();
+});
+document.addEventListener('contextmenu', ev => ev.preventDefault());
+window.addEventListener('resize', ajustarGrade);
+['pointerdown','touchstart','keydown'].forEach(t => document.addEventListener(t, armarOcioso, true));
+
+/* ====== INÍCIO ====== */
+$('#cred-ia').textContent = FERRAMENTA;
+$('#cred-prompt').textContent = PROMPT_CREDITOS;
+$('#cred-prompt').addEventListener('click', ev => ev.stopPropagation());
+if(temVoz){
+  speechSynthesis.addEventListener('voiceschanged', carregarVozes);
+  carregarVozes();
+} else {
+  aplicarPrefs();
+}
+mostrar('home');
+})();
+</script>
+</body>
+</html>
+
+</body></html>
